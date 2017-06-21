@@ -1,0 +1,79 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: µVision V5.22.0.0
+Copyright (C) 2016 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Nelson Rodriguez, Coltrack, LIC=----
+ 
+Tool Versions:
+Toolchain:       MDK-Lite  Version: 5.22
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 4 (build 422)
+Assembler:       Armasm.exe V5.06 update 4 (build 422)
+Linker/Locator:  ArmLink.exe V5.06 update 4 (build 422)
+Library Manager: ArmAr.exe V5.06 update 4 (build 422)
+Hex Converter:   FromElf.exe V5.06 update 4 (build 422)
+CPU DLL:         SARMCM3.DLL V5.22
+Dialog DLL:      DARMCM1.DLL V1.15.0.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V2.0.18.0
+Dialog DLL:      TARMCM1.DLL V1.11.0.0
+ 
+<h2>Project:</h2>
+C:\Users\Nelson Rodriguez\Documents\NRF\nRF51_SDK_10.0.0_dc26b5e\examples\ble_peripheral\experimental_ble_app_multiactivity_beacon\hrs_scanner\pca10028\s130\arm5_no_packs\experimental_ble_app_hrs_scanner_s130_pca10028.uvprojx
+Project File Date:  06/20/2017
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 4 (build 422)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
+Build target 'nrf51422_xxac_s130'
+compiling softdevice_handler.c...
+compiling main.c...
+..\..\..\main.c(654): warning:  #177-D: variable "adv_data"  was declared but never referenced
+  						data_t adv_data;
+..\..\..\main.c(655): warning:  #177-D: variable "type_data"  was declared but never referenced
+  						data_t type_data;
+..\..\..\main.c(58): warning:  #177-D: variable "advertisor_addr"  was declared but never referenced
+  static ble_gap_addr_t  advertisor_addr; 
+..\..\..\main.c(481): warning:  #177-D: function "application_timers_start"  was declared but never referenced
+  static void application_timers_start(void)
+..\..\..\main.c(601): warning:  #177-D: function "adv_report_parse"  was declared but never referenced
+  static uint32_t adv_report_parse(uint8_t type, data_t * p_advdata, data_t * p_typedata)
+..\..\..\main.c: 5 warnings, 0 errors
+linking...
+Program Size: Code=21912 RO-data=476 RW-data=364 ZI-data=4540  
+FromELF: creating hex file...
+".\_build\nrf51422_xxac_s130.axf" - 0 Error(s), 5 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.4.5.0.pack
+                ARM::CMSIS:CORE:4.3.0
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 4.3.0
+
+Package Vendor: NordicSemiconductor
+                http://developer.nordicsemi.com/nRF51_SDK/pieces/nRF_DeviceFamilyPack/NordicSemiconductor.nRF_DeviceFamilyPack.8.2.0.pack
+                NordicSemiconductor::Device:Startup:8.2.0
+                Nordic Semiconductor nRF ARM devices Device Family Pack.
+   * Component: Startup Version: 8.2.0
+
+<h2>Collection of Component include folders:</h2>
+  C:\Users\Nelson Rodriguez\Documents\NRF\nRF51_SDK_10.0.0_dc26b5e\examples\ble_peripheral\experimental_ble_app_multiactivity_beacon\hrs_scanner\pca10028\s130\arm5_no_packs\RTE\_nrf51422_xxac_s130
+  C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include
+  C:\Keil_v5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPack\8.2.0\Device\Include
+  C:\Keil_v5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPack\8.7.1\Device\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:4.3.0
+
+   * Component: NordicSemiconductor::Device:Startup:8.2.0
+      Source file:   Device\Source\arm\arm_startup_nrf51.s
+      Source file:   Device\Source\system_nrf51.c
+      Include file:  Device\Include\system_nrf51.h
+Build Time Elapsed:  00:00:02
+</pre>
+</body>
+</html>
