@@ -63,3 +63,4 @@
 .\_build\main.o: ..\..\..\..\..\..\..\components\libraries\uart\app_uart.h
 .\_build\main.o: ..\..\..\..\..\..\..\components\libraries\util\app_util_platform.h
 .\_build\main.o: ..\..\..\..\..\..\..\components\ble\ble_services\ble_nus\ble_nus.h
+.\_build\main.o: ..\..\..\..\..\..\..\components\drivers_nrf\delay\nrf_delay.h

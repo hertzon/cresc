@@ -29,35 +29,57 @@ Project File Date:  06/20/2017
 Build target 'nrf51422_xxac_s130'
 compiling softdevice_handler.c...
 compiling main.c...
-..\..\..\main.c(654): warning:  #177-D: variable "adv_data"  was declared but never referenced
+..\..\..\main.c(347): warning:  #177-D: variable "err_code"  was declared but never referenced
+      uint32_t err_code;
+..\..\..\main.c(663): warning:  #177-D: variable "adv_data"  was declared but never referenced
   						data_t adv_data;
-..\..\..\main.c(655): warning:  #177-D: variable "type_data"  was declared but never referenced
+..\..\..\main.c(664): warning:  #177-D: variable "type_data"  was declared but never referenced
   						data_t type_data;
-..\..\..\main.c(58): warning:  #177-D: variable "advertisor_addr"  was declared but never referenced
+..\..\..\main.c(69): warning:  #177-D: variable "advertisor_addr"  was declared but never referenced
   static ble_gap_addr_t  advertisor_addr; 
-..\..\..\main.c(481): warning:  #177-D: function "application_timers_start"  was declared but never referenced
-  static void application_timers_start(void)
-..\..\..\main.c(601): warning:  #177-D: function "adv_report_parse"  was declared but never referenced
+..\..\..\main.c(191): warning:  #177-D: variable "m_battery_timer_id"  was declared but never referenced
+  APP_TIMER_DEF(m_battery_timer_id);                                                      /**< Battery timer. */
+..\..\..\main.c(192): warning:  #177-D: variable "m_heart_rate_timer_id"  was declared but never referenced
+  APP_TIMER_DEF(m_heart_rate_timer_id);                                                   /**< Heart rate measurement timer. */
+..\..\..\main.c(193): warning:  #177-D: variable "m_rr_interval_timer_id"  was declared but never referenced
+  APP_TIMER_DEF(m_rr_interval_timer_id);                                                  /**< RR interval timer. */
+..\..\..\main.c(194): warning:  #177-D: variable "m_sensor_contact_timer_id"  was declared but never referenced
+  APP_TIMER_DEF(m_sensor_contact_timer_id);                                               /**< Sensor contact detected timer. */
+..\..\..\main.c(198): warning:  #177-D: variable "m_adv_uuids"  was declared but never referenced
+  static ble_uuid_t m_adv_uuids[] =                                                       /**< Universally unique service identifiers. */
+..\..\..\main.c(255): warning:  #177-D: function "battery_level_meas_timeout_handler"  was declared but never referenced
+  static void battery_level_meas_timeout_handler(void * p_context)
+..\..\..\main.c(271): warning:  #177-D: function "heart_rate_meas_timeout_handler"  was declared but never referenced
+  static void heart_rate_meas_timeout_handler(void * p_context)
+..\..\..\main.c(307): warning:  #177-D: function "rr_interval_timeout_handler"  was declared but never referenced
+  static void rr_interval_timeout_handler(void * p_context)
+..\..\..\main.c(330): warning:  #177-D: function "sensor_contact_detected_timeout_handler"  was declared but never referenced
+  static void sensor_contact_detected_timeout_handler(void * p_context)
+..\..\..\main.c(592): warning:  #177-D: function "on_adv_evt"  was declared but never referenced
+  static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
+..\..\..\main.c(610): warning:  #177-D: function "adv_report_parse"  was declared but never referenced
   static uint32_t adv_report_parse(uint8_t type, data_t * p_advdata, data_t * p_typedata)
-..\..\..\main.c: 5 warnings, 0 errors
+..\..\..\main.c(903): warning:  #177-D: function "buttons_leds_init"  was declared but never referenced
+  static void buttons_leds_init(bool * p_erase_bonds)
+..\..\..\main.c: 16 warnings, 0 errors
 linking...
-Program Size: Code=21912 RO-data=476 RW-data=364 ZI-data=4540  
+Program Size: Code=17368 RO-data=452 RW-data=232 ZI-data=4336  
 FromELF: creating hex file...
-".\_build\nrf51422_xxac_s130.axf" - 0 Error(s), 5 Warning(s).
+".\_build\nrf51422_xxac_s130.axf" - 0 Error(s), 16 Warning(s).
 
 <h2>Software Packages used:</h2>
-
-Package Vendor: ARM
-                http://www.keil.com/pack/ARM.CMSIS.4.5.0.pack
-                ARM::CMSIS:CORE:4.3.0
-                CMSIS (Cortex Microcontroller Software Interface Standard)
-   * Component: CORE Version: 4.3.0
 
 Package Vendor: NordicSemiconductor
                 http://developer.nordicsemi.com/nRF51_SDK/pieces/nRF_DeviceFamilyPack/NordicSemiconductor.nRF_DeviceFamilyPack.8.2.0.pack
                 NordicSemiconductor::Device:Startup:8.2.0
                 Nordic Semiconductor nRF ARM devices Device Family Pack.
    * Component: Startup Version: 8.2.0
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.4.5.0.pack
+                ARM::CMSIS:CORE:4.3.0
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 4.3.0
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Nelson Rodriguez\Documents\NRF\nRF51_SDK_10.0.0_dc26b5e\examples\ble_peripheral\experimental_ble_app_multiactivity_beacon\hrs_scanner\pca10028\s130\arm5_no_packs\RTE\_nrf51422_xxac_s130
@@ -67,12 +89,12 @@ Package Vendor: NordicSemiconductor
 
 <h2>Collection of Component Files used:</h2>
 
-   * Component: ARM::CMSIS:CORE:4.3.0
-
    * Component: NordicSemiconductor::Device:Startup:8.2.0
+      Include file:  Device\Include\system_nrf51.h
       Source file:   Device\Source\arm\arm_startup_nrf51.s
       Source file:   Device\Source\system_nrf51.c
-      Include file:  Device\Include\system_nrf51.h
+
+   * Component: ARM::CMSIS:CORE:4.3.0
 Build Time Elapsed:  00:00:02
 </pre>
 </body>

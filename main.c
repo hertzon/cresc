@@ -42,12 +42,23 @@
 #include "scanner_beacon.h"
 #include "app_uart.h"
 #include "ble_nus.h"
+#include "nrf_delay.h"
 
 #define IS_SRVC_CHANGED_CHARACT_PRESENT         0                                       /**< Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
 
 #define SEARCHED_MAJOR                          0x1234
 #define SEARCHED_MINOR                          0x5678
 #define APP_COMPANY_IDENTIFIER                  0x0059                                  /**< Company identifier for Nordic Semiconductor ASA. as per www.bluetooth.org. */
+
+#define ADC_REF_VOLTAGE_IN_MILLIVOLTS           1200
+#define ADC_PRE_SCALING_COMPENSATION            3 
+#define ADC_RESULT_IN_MILLI_VOLTS(ADC_VALUE)\
+				((((ADC_VALUE) * ADC_REF_VOLTAGE_IN_MILLIVOLTS) / 1023) * ADC_PRE_SCALING_COMPENSATION)
+
+uint16_t m_vdd_measurement_volts;
+uint16_t m_vdd_measurement_raw;
+
+
 
 typedef struct
 {
@@ -76,10 +87,12 @@ static void beacon_evt_handler(ble_scan_beacon_evt_t * p_evt)
 			major=(major>>8) | (major<<8);
 			unsigned short minor=p_evt->rcv_adv_packet.adv_data.minor;
 			minor=(minor>>8) | (minor<<8);
-			printf("Major: %X\r\n",major);
-			printf("Minor: %X\r\n",minor);
-			signed short rssi=p_evt->rcv_adv_packet.adv_data.rssi;
-			rssi=(rssi>>8) | (rssi<<8);
+			//printf("Major: %X\r\n",major);
+			printf("Major: %d\r\n",major);
+			printf("Minor: %d\r\n",minor);
+			//printf("Minor: %X\r\n",minor);
+			int8_t rssi=p_evt->rcv_adv_packet.adv_data.rssi;
+			//rssi=(rssi>>8) | (rssi<<8);
 			printf("RSSI: %d\n",rssi);
 			//printf("Size uuid: %u\r\n",sizeof(p_evt->rcv_adv_packet.adv_data.uuid.uuid128));
 			for (int i=0;i<sizeof(p_evt->rcv_adv_packet.adv_data.uuid.uuid128);i++){
@@ -118,28 +131,28 @@ static ble_beacon_scanner_init_t m_beacon_scanner_init;
 
 #define DEVICE_NAME                          "BeacScanner"                               /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME                    "NordicSemiconductor"                      /**< Manufacturer. Will be passed to Device Information Service. */
-#define APP_ADV_INTERVAL                     480                                         /**< The advertising interval (in units of 0.625 ms. This value corresponds to 300 ms). */
-#define APP_ADV_TIMEOUT_IN_SECONDS           180                                        /**< The advertising timeout in units of seconds. */
+//#define APP_ADV_INTERVAL                     480                                         /**< The advertising interval (in units of 0.625 ms. This value corresponds to 300 ms). */
+//#define APP_ADV_TIMEOUT_IN_SECONDS           180                                        /**< The advertising timeout in units of seconds. */
 
 #define APP_TIMER_PRESCALER                  0                                          /**< Value of the RTC1 PRESCALER register. */
 #define APP_TIMER_OP_QUEUE_SIZE              4                                          /**< Size of timer operation queues. */
 
-#define BATTERY_LEVEL_MEAS_INTERVAL          APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER) /**< Battery level measurement interval (ticks). */
-#define MIN_BATTERY_LEVEL                    81                                         /**< Minimum simulated battery level. */
-#define MAX_BATTERY_LEVEL                    100                                        /**< Maximum simulated battery level. */
-#define BATTERY_LEVEL_INCREMENT              1                                          /**< Increment between each simulated battery level measurement. */
+//#define BATTERY_LEVEL_MEAS_INTERVAL          APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER) /**< Battery level measurement interval (ticks). */
+//#define MIN_BATTERY_LEVEL                    81                                         /**< Minimum simulated battery level. */
+//#define MAX_BATTERY_LEVEL                    100                                        /**< Maximum simulated battery level. */
+//#define BATTERY_LEVEL_INCREMENT              1                                          /**< Increment between each simulated battery level measurement. */
 
-#define HEART_RATE_MEAS_INTERVAL             APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) /**< Heart rate measurement interval (ticks). */
-#define MIN_HEART_RATE                       140                                        /**< Minimum heart rate as returned by the simulated measurement function. */
-#define MAX_HEART_RATE                       300                                        /**< Maximum heart rate as returned by the simulated measurement function. */
-#define HEART_RATE_INCREMENT                 10                                         /**< Value by which the heart rate is incremented/decremented for each call to the simulated measurement function. */
+//#define HEART_RATE_MEAS_INTERVAL             APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) /**< Heart rate measurement interval (ticks). */
+//#define MIN_HEART_RATE                       140                                        /**< Minimum heart rate as returned by the simulated measurement function. */
+//#define MAX_HEART_RATE                       300                                        /**< Maximum heart rate as returned by the simulated measurement function. */
+//#define HEART_RATE_INCREMENT                 10                                         /**< Value by which the heart rate is incremented/decremented for each call to the simulated measurement function. */
 
-#define RR_INTERVAL_INTERVAL                 APP_TIMER_TICKS(300, APP_TIMER_PRESCALER)  /**< RR interval interval (ticks). */
-#define MIN_RR_INTERVAL                      100                                        /**< Minimum RR interval as returned by the simulated measurement function. */
-#define MAX_RR_INTERVAL                      500                                        /**< Maximum RR interval as returned by the simulated measurement function. */
-#define RR_INTERVAL_INCREMENT                1                                          /**< Value by which the RR interval is incremented/decremented for each call to the simulated measurement function. */
+//#define RR_INTERVAL_INTERVAL                 APP_TIMER_TICKS(300, APP_TIMER_PRESCALER)  /**< RR interval interval (ticks). */
+//#define MIN_RR_INTERVAL                      100                                        /**< Minimum RR interval as returned by the simulated measurement function. */
+//#define MAX_RR_INTERVAL                      500                                        /**< Maximum RR interval as returned by the simulated measurement function. */
+//#define RR_INTERVAL_INCREMENT                1                                          /**< Value by which the RR interval is incremented/decremented for each call to the simulated measurement function. */
 
-#define SENSOR_CONTACT_DETECTED_INTERVAL     APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER) /**< Sensor Contact Detected toggle interval (ticks). */
+//#define SENSOR_CONTACT_DETECTED_INTERVAL     APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER) /**< Sensor Contact Detected toggle interval (ticks). */
 
 #define MIN_CONN_INTERVAL                    MSEC_TO_UNITS(500, UNIT_1_25_MS)           /**< Minimum acceptable connection interval (0.5 seconds). */
 #define MAX_CONN_INTERVAL                    MSEC_TO_UNITS(1000, UNIT_1_25_MS)          /**< Maximum acceptable connection interval (1 second). */
@@ -188,6 +201,8 @@ static ble_uuid_t m_adv_uuids[] =                                               
     {BLE_UUID_BATTERY_SERVICE,            BLE_UUID_TYPE_BLE},
     {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}
 };
+
+static int prBat=0;
 
 
 /**@brief Callback function for asserts in the SoftDevice.
@@ -239,7 +254,8 @@ static void battery_level_update(void)
  */
 static void battery_level_meas_timeout_handler(void * p_context)
 {
-    UNUSED_PARAMETER(p_context);
+    printf("battery_level_meas_timeout_handler");
+		UNUSED_PARAMETER(p_context);
     battery_level_update();
 }
 
@@ -254,6 +270,7 @@ static void battery_level_meas_timeout_handler(void * p_context)
  */
 static void heart_rate_meas_timeout_handler(void * p_context)
 {
+		printf("heart_rate_meas_timeout_handler");
     static uint32_t cnt = 0;
     uint32_t        err_code;
     uint16_t        heart_rate;
@@ -289,6 +306,7 @@ static void heart_rate_meas_timeout_handler(void * p_context)
  */
 static void rr_interval_timeout_handler(void * p_context)
 {
+		printf("rr_interval_timeout_handler");
     UNUSED_PARAMETER(p_context);
 
     if (m_rr_interval_enabled)
@@ -312,6 +330,7 @@ static void rr_interval_timeout_handler(void * p_context)
 static void sensor_contact_detected_timeout_handler(void * p_context)
 {
     static bool sensor_contact_detected = false;
+		printf("sensor_contact_detected_timeout_handler");
 
     UNUSED_PARAMETER(p_context);
 
@@ -331,25 +350,17 @@ static void timers_init(void)
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, false);
 
     // Create timers.
-    err_code = app_timer_create(&m_battery_timer_id,
-                                APP_TIMER_MODE_REPEATED,
-                                battery_level_meas_timeout_handler);
-    APP_ERROR_CHECK(err_code);
+    //err_code = app_timer_create(&m_battery_timer_id,APP_TIMER_MODE_REPEATED,battery_level_meas_timeout_handler);
+    //APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_create(&m_heart_rate_timer_id,
-                                APP_TIMER_MODE_REPEATED,
-                                heart_rate_meas_timeout_handler);
-    APP_ERROR_CHECK(err_code);
+    //err_code = app_timer_create(&m_heart_rate_timer_id,APP_TIMER_MODE_REPEATED,heart_rate_meas_timeout_handler);
+    //APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_create(&m_rr_interval_timer_id,
-                                APP_TIMER_MODE_REPEATED,
-                                rr_interval_timeout_handler);
-    APP_ERROR_CHECK(err_code);
+    //err_code = app_timer_create(&m_rr_interval_timer_id,APP_TIMER_MODE_REPEATED,rr_interval_timeout_handler);
+    //APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_create(&m_sensor_contact_timer_id,
-                                APP_TIMER_MODE_REPEATED,
-                                sensor_contact_detected_timeout_handler);
-    APP_ERROR_CHECK(err_code);
+    //err_code = app_timer_create(&m_sensor_contact_timer_id,APP_TIMER_MODE_REPEATED,sensor_contact_detected_timeout_handler);
+    //APP_ERROR_CHECK(err_code);
 }
 
 
@@ -360,29 +371,27 @@ static void timers_init(void)
  */
 static void gap_params_init(void)
 {
-    uint32_t                err_code;
-    ble_gap_conn_params_t   gap_conn_params;
-    ble_gap_conn_sec_mode_t sec_mode;
+    //uint32_t                err_code;
+    //ble_gap_conn_params_t   gap_conn_params;
+    //ble_gap_conn_sec_mode_t sec_mode;
 
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
+    //BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
 
-    err_code = sd_ble_gap_device_name_set(&sec_mode,
-                                          (const uint8_t *)DEVICE_NAME,
-                                          strlen(DEVICE_NAME));
-    APP_ERROR_CHECK(err_code);
+    //err_code = sd_ble_gap_device_name_set(&sec_mode,(const uint8_t *)DEVICE_NAME,strlen(DEVICE_NAME));
+    //APP_ERROR_CHECK(err_code);
 
-    err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_HEART_RATE_SENSOR_HEART_RATE_BELT);
-    APP_ERROR_CHECK(err_code);
+    //err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_HEART_RATE_SENSOR_HEART_RATE_BELT);
+    //APP_ERROR_CHECK(err_code);
 
-    memset(&gap_conn_params, 0, sizeof(gap_conn_params));
+    //memset(&gap_conn_params, 0, sizeof(gap_conn_params));
 
-    gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
-    gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
-    gap_conn_params.slave_latency     = SLAVE_LATENCY;
-    gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
+    //gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
+    //gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
+    //gap_conn_params.slave_latency     = SLAVE_LATENCY;
+    //gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
 
-    err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
-    APP_ERROR_CHECK(err_code);
+    //err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
+    //APP_ERROR_CHECK(err_code);
 }
 
 
@@ -390,111 +399,111 @@ static void gap_params_init(void)
  *
  * @details Initialize the Heart Rate, Battery and Device Information services.
  */
-static void services_init(void)
-{
-    uint32_t       err_code;
-    ble_hrs_init_t hrs_init;
-    ble_bas_init_t bas_init;
-    ble_dis_init_t dis_init;
-    uint8_t        body_sensor_location;
+//static void services_init(void)
+//{
+//    uint32_t       err_code;
+//    ble_hrs_init_t hrs_init;
+//    ble_bas_init_t bas_init;
+//    ble_dis_init_t dis_init;
+//    uint8_t        body_sensor_location;
 
-    // Initialize Heart Rate Service.
-    body_sensor_location = BLE_HRS_BODY_SENSOR_LOCATION_FINGER;
+//    // Initialize Heart Rate Service.
+//    body_sensor_location = BLE_HRS_BODY_SENSOR_LOCATION_FINGER;
 
-    memset(&hrs_init, 0, sizeof(hrs_init));
+//    memset(&hrs_init, 0, sizeof(hrs_init));
 
-    hrs_init.evt_handler                 = NULL;
-    hrs_init.is_sensor_contact_supported = true;
-    hrs_init.p_body_sensor_location      = &body_sensor_location;
+//    hrs_init.evt_handler                 = NULL;
+//    hrs_init.is_sensor_contact_supported = true;
+//    hrs_init.p_body_sensor_location      = &body_sensor_location;
 
-    // Here the sec level for the Heart Rate Service can be changed/increased.
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hrs_init.hrs_hrm_attr_md.cccd_write_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&hrs_init.hrs_hrm_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&hrs_init.hrs_hrm_attr_md.write_perm);
+//    // Here the sec level for the Heart Rate Service can be changed/increased.
+//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hrs_init.hrs_hrm_attr_md.cccd_write_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&hrs_init.hrs_hrm_attr_md.read_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&hrs_init.hrs_hrm_attr_md.write_perm);
 
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hrs_init.hrs_bsl_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&hrs_init.hrs_bsl_attr_md.write_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hrs_init.hrs_bsl_attr_md.read_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&hrs_init.hrs_bsl_attr_md.write_perm);
 
-    err_code = ble_hrs_init(&m_hrs, &hrs_init);
-    APP_ERROR_CHECK(err_code);
+//    err_code = ble_hrs_init(&m_hrs, &hrs_init);
+//    APP_ERROR_CHECK(err_code);
 
-    // Initialize Battery Service.
-    memset(&bas_init, 0, sizeof(bas_init));
+//    // Initialize Battery Service.
+//    memset(&bas_init, 0, sizeof(bas_init));
 
-    // Here the sec level for the Battery Service can be changed/increased.
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.cccd_write_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&bas_init.battery_level_char_attr_md.write_perm);
+//    // Here the sec level for the Battery Service can be changed/increased.
+//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.cccd_write_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.read_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&bas_init.battery_level_char_attr_md.write_perm);
 
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_report_read_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_report_read_perm);
 
-    bas_init.evt_handler          = NULL;
-    bas_init.support_notification = true;
-    bas_init.p_report_ref         = NULL;
-    bas_init.initial_batt_level   = 100;
+//    bas_init.evt_handler          = NULL;
+//    bas_init.support_notification = true;
+//    bas_init.p_report_ref         = NULL;
+//    bas_init.initial_batt_level   = 100;
 
-    err_code = ble_bas_init(&m_bas, &bas_init);
-    APP_ERROR_CHECK(err_code);
+//    err_code = ble_bas_init(&m_bas, &bas_init);
+//    APP_ERROR_CHECK(err_code);
 
-    // Initialize Device Information Service.
-    memset(&dis_init, 0, sizeof(dis_init));
+//    // Initialize Device Information Service.
+//    memset(&dis_init, 0, sizeof(dis_init));
 
-    ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, (char *)MANUFACTURER_NAME);
+//    ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, (char *)MANUFACTURER_NAME);
 
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&dis_init.dis_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&dis_init.dis_attr_md.write_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&dis_init.dis_attr_md.read_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&dis_init.dis_attr_md.write_perm);
 
-    err_code = ble_dis_init(&dis_init);
-    APP_ERROR_CHECK(err_code);
-}
+//    err_code = ble_dis_init(&dis_init);
+//    APP_ERROR_CHECK(err_code);
+//}
 
 
 /**@brief Function for initializing the sensor simulators.
  */
-static void sensor_simulator_init(void)
-{
-    m_battery_sim_cfg.min          = MIN_BATTERY_LEVEL;
-    m_battery_sim_cfg.max          = MAX_BATTERY_LEVEL;
-    m_battery_sim_cfg.incr         = BATTERY_LEVEL_INCREMENT;
-    m_battery_sim_cfg.start_at_max = true;
+//static void sensor_simulator_init(void)
+//{
+//    m_battery_sim_cfg.min          = MIN_BATTERY_LEVEL;
+//    m_battery_sim_cfg.max          = MAX_BATTERY_LEVEL;
+//    m_battery_sim_cfg.incr         = BATTERY_LEVEL_INCREMENT;
+//    m_battery_sim_cfg.start_at_max = true;
 
-    sensorsim_init(&m_battery_sim_state, &m_battery_sim_cfg);
+//    sensorsim_init(&m_battery_sim_state, &m_battery_sim_cfg);
 
-    m_heart_rate_sim_cfg.min          = MIN_HEART_RATE;
-    m_heart_rate_sim_cfg.max          = MAX_HEART_RATE;
-    m_heart_rate_sim_cfg.incr         = HEART_RATE_INCREMENT;
-    m_heart_rate_sim_cfg.start_at_max = false;
+//    m_heart_rate_sim_cfg.min          = MIN_HEART_RATE;
+//    m_heart_rate_sim_cfg.max          = MAX_HEART_RATE;
+//    m_heart_rate_sim_cfg.incr         = HEART_RATE_INCREMENT;
+//    m_heart_rate_sim_cfg.start_at_max = false;
 
-    sensorsim_init(&m_heart_rate_sim_state, &m_heart_rate_sim_cfg);
+//    sensorsim_init(&m_heart_rate_sim_state, &m_heart_rate_sim_cfg);
 
-    m_rr_interval_sim_cfg.min          = MIN_RR_INTERVAL;
-    m_rr_interval_sim_cfg.max          = MAX_RR_INTERVAL;
-    m_rr_interval_sim_cfg.incr         = RR_INTERVAL_INCREMENT;
-    m_rr_interval_sim_cfg.start_at_max = false;
+//    m_rr_interval_sim_cfg.min          = MIN_RR_INTERVAL;
+//    m_rr_interval_sim_cfg.max          = MAX_RR_INTERVAL;
+//    m_rr_interval_sim_cfg.incr         = RR_INTERVAL_INCREMENT;
+//    m_rr_interval_sim_cfg.start_at_max = false;
 
-    sensorsim_init(&m_rr_interval_sim_state, &m_rr_interval_sim_cfg);
-}
+//    sensorsim_init(&m_rr_interval_sim_state, &m_rr_interval_sim_cfg);
+//}
 
 
 /**@brief Function for starting application timers.
  */
-static void application_timers_start(void)
-{
-    uint32_t err_code;
+//static void application_timers_start(void)
+//{
+//    uint32_t err_code;
 
-    // Start application timers.
-    err_code = app_timer_start(m_battery_timer_id, BATTERY_LEVEL_MEAS_INTERVAL, NULL);
-    APP_ERROR_CHECK(err_code);
+//    // Start application timers.
+//    err_code = app_timer_start(m_battery_timer_id, BATTERY_LEVEL_MEAS_INTERVAL, NULL);
+//    APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_start(m_heart_rate_timer_id, HEART_RATE_MEAS_INTERVAL, NULL);
-    APP_ERROR_CHECK(err_code);
+//    err_code = app_timer_start(m_heart_rate_timer_id, HEART_RATE_MEAS_INTERVAL, NULL);
+//    APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_start(m_rr_interval_timer_id, RR_INTERVAL_INTERVAL, NULL);
-    APP_ERROR_CHECK(err_code);
+//    err_code = app_timer_start(m_rr_interval_timer_id, RR_INTERVAL_INTERVAL, NULL);
+//    APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_start(m_sensor_contact_timer_id, SENSOR_CONTACT_DETECTED_INTERVAL, NULL);
-    APP_ERROR_CHECK(err_code);
-}
+//    err_code = app_timer_start(m_sensor_contact_timer_id, SENSOR_CONTACT_DETECTED_INTERVAL, NULL);
+//    APP_ERROR_CHECK(err_code);
+//}
 
 
 /**@brief Function for handling the Connection Parameters Module.
@@ -864,28 +873,28 @@ static void device_manager_init(bool erase_bonds)
 
 /**@brief Function for initializing the Advertising functionality.
  */
-static void advertising_init(void)
-{
-    uint32_t      err_code;
-    ble_advdata_t advdata;
+//static void advertising_init(void)
+//{
+//    uint32_t      err_code;
+//    ble_advdata_t advdata;
 
-    // Build advertising data struct to pass into @ref ble_advertising_init.
-    memset(&advdata, 0, sizeof(advdata));
+//    // Build advertising data struct to pass into @ref ble_advertising_init.
+//    memset(&advdata, 0, sizeof(advdata));
 
-    advdata.name_type               = BLE_ADVDATA_FULL_NAME;
-    advdata.include_appearance      = true;
-    advdata.flags                   = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
-    advdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
-    advdata.uuids_complete.p_uuids  = m_adv_uuids;
+//    advdata.name_type               = BLE_ADVDATA_FULL_NAME;
+//    advdata.include_appearance      = true;
+//    advdata.flags                   = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
+//    advdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
+//    advdata.uuids_complete.p_uuids  = m_adv_uuids;
 
-    ble_adv_modes_config_t options = {0};
-    options.ble_adv_fast_enabled  = BLE_ADV_FAST_ENABLED;
-    options.ble_adv_fast_interval = APP_ADV_INTERVAL;
-    options.ble_adv_fast_timeout  = APP_ADV_TIMEOUT_IN_SECONDS;
+//    ble_adv_modes_config_t options = {0};
+//    options.ble_adv_fast_enabled  = BLE_ADV_FAST_ENABLED;
+//    options.ble_adv_fast_interval = APP_ADV_INTERVAL;
+//    options.ble_adv_fast_timeout  = APP_ADV_TIMEOUT_IN_SECONDS;
 
-    err_code = ble_advertising_init(&advdata, NULL, &options, on_adv_evt, NULL);
-    APP_ERROR_CHECK(err_code);
-}
+//    err_code = ble_advertising_init(&advdata, NULL, &options, on_adv_evt, NULL);
+//    APP_ERROR_CHECK(err_code);
+//}
 
 /**@brief Function for initializing buttons and leds.
  *
@@ -977,6 +986,60 @@ static void uart_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
+void adc_init(void)
+{
+
+	/* setup ADC for capturing battery voltage */
+	NRF_ADC->CONFIG = (
+		(ADC_CONFIG_REFSEL_VBG                      << ADC_CONFIG_REFSEL_Pos) |
+		(ADC_CONFIG_INPSEL_SupplyOneThirdPrescaling << ADC_CONFIG_INPSEL_Pos) |
+		(ADC_CONFIG_RES_10bit                        << ADC_CONFIG_RES_Pos)
+	);
+	NRF_ADC->INTENSET = (
+		(ADC_INTENSET_END_Enabled << ADC_INTENSET_END_Pos)
+	);
+    NVIC_SetPriority(ADC_IRQn, APP_IRQ_PRIORITY_LOW);
+	NVIC_EnableIRQ(ADC_IRQn);
+}
+
+void adc_start(void)
+{
+	/* start ADC voltage conversion */
+	NRF_ADC->ENABLE = 1;
+	NRF_ADC->TASKS_START = 1;
+}
+
+void uart_error_handle(app_uart_evt_t * p_event)
+{
+    if (p_event->evt_type == APP_UART_COMMUNICATION_ERROR)
+    {
+        APP_ERROR_HANDLER(p_event->data.error_communication);
+    }
+    else if (p_event->evt_type == APP_UART_FIFO_ERROR)
+    {
+        APP_ERROR_HANDLER(p_event->data.error_code);
+    }
+}
+
+void ADC_IRQHandler(void)
+{
+    
+	if(NRF_ADC->EVENTS_END)
+	{
+		/* acknowledge event */
+		NRF_ADC->EVENTS_END = 0;
+
+		/* read battery voltage */
+		m_vdd_measurement_raw = (uint16_t)NRF_ADC->RESULT;
+		m_vdd_measurement_volts = ADC_RESULT_IN_MILLI_VOLTS(m_vdd_measurement_raw);
+        printf("VDD Measurement: %d mV\n",m_vdd_measurement_volts);
+
+		/* disable ADC after sampling voltage */
+		NRF_ADC->TASKS_STOP = 1;
+		NRF_ADC->ENABLE = 0;
+	}
+}
+
 
 
 /**@brief Function for application main entry.
@@ -988,16 +1051,17 @@ int main(void)
 
     // Initialize.
     timers_init();
-    buttons_leds_init(&erase_bonds);
+    //buttons_leds_init(&erase_bonds);
 		uart_init();
     ble_stack_init();
     device_manager_init(erase_bonds);
     gap_params_init();
-    advertising_init();
-    services_init();
-    sensor_simulator_init();
+    //advertising_init();
+    //services_init();
+    //sensor_simulator_init();
     conn_params_init();
     scanner_init();
+		adc_init();
 		printf("Starting execution");
     // Start execution.
     scanner_start();
@@ -1009,6 +1073,12 @@ int main(void)
     for (;;)
     {
         power_manage();
+				if (++prBat>100){
+					prBat=0;
+					adc_start();
+				}
+				
+				nrf_delay_ms(10);
     }
 }
 
